@@ -1,6 +1,6 @@
 CC_FLAGS       := $(CC_FLAGS) -ffreestanding -Wall -Wextra
 LD_FLAGS       := $(LD_FLAGS)
-LIBS           := $(LIBS) -nostdlib -lk -lgcc
+LIBS           := $(LIBS) -nostdlib -flto
 
 ARCH_DIR       := arch/$(HOST_ARCH)
 
@@ -29,13 +29,11 @@ $(LIBS) \
 $(ARCH_DIR)/crtend.o \
 $(ARCH_DIR)/crtn.o \
 
-.PHONY: kernel install-kernel clean
+.PHONY: clean
 
 .SUFFIXES: .o .c .S
 
-all: kernel
-
-kernel: $(OBJS) $(ARCH_DIR)/linker.ld
+otiose.kernel: $(OBJS) $(ARCH_DIR)/linker.ld
 	$(strip $(CC) -T $(ARCH_DIR)/linker.ld -o otiose.kernel $(CC_FLAGS) $(LINK_LIST) )
 
 $(ARCH_DIR)/crtbegin.o $(ARCH_DIR)/crtend.o:

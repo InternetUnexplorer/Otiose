@@ -1,5 +1,3 @@
-export
-
 SYSROOT        ?= $(shell pwd)
 
 HOST           ?= i686-elf
@@ -15,11 +13,16 @@ INCLUDE_DIR    := $(PREFIX)/include
 CC_FLAGS       := --sysroot=$(SYSROOT) -O2 -g
 LD_FLAGS       :=
 
+export
+
 ifneq (,$(findstring -elf,$(HOST))) # -elf gcc targets don't have a system include directory.
 	CC_FLAGS   := -isystem=$(INCLUDE_DIR) $(CC_FLAGS)
 endif
 
-.PHONY: kernel
+.PHONY: qemu kernel
+
+qemu: kernel
+	qemu-system-i386 -curses -kernel kernel/otiose.kernel
 
 kernel:
 	(cd kernel; make)
