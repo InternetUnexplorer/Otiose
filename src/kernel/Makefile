@@ -1,3 +1,5 @@
+include ../make.config
+
 CC_FLAGS       := $(CC_FLAGS) -ffreestanding -Wall -Wextra
 LD_FLAGS       := $(LD_FLAGS)
 LIBS           := $(LIBS) -nostdlib -flto
@@ -11,7 +13,7 @@ LIBS           := $(LIBS) $(KERNEL_ARCH_LIBS)
 
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
-kernel.o
+kernel.o\
 
 OBJS=\
 $(ARCH_DIR)/crti.o \
