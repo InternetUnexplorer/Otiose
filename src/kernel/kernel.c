@@ -4,5 +4,8 @@
 
 void kernel_main(void) {
 	uint16_t* terminal_buffer = (uint16_t*) 0xB8000;
-	terminal_buffer[0] = 2 << 8 | 'H';
+	char testStr[] = "Hello, world!";
+	size_t i;
+	for(i = 0; i < 13; i++)
+		terminal_buffer[i] = 2 << 8 | testStr[i];
 }
