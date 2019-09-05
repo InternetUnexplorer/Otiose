@@ -13,7 +13,7 @@ LIBS           := $(LIBS) $(KERNEL_ARCH_LIBS)
 
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
-kernel.o\
+kernel.o \
 
 OBJS=\
 $(ARCH_DIR)/crti.o \
