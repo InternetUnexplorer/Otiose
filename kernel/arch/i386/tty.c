@@ -57,9 +57,9 @@ static inline void _updatecursor() {
     // Credit: https://wiki.osdev.org/Text_Mode_Cursor
     uint16_t offset = cursor_y * tty_getwidth() + cursor_x;
     outb(0x3D4, 0x0F);
-	outb(0x3D5, (uint8_t) (offset & 0xFF));
-	outb(0x3D4, 0x0E);
-	outb(0x3D5, (uint8_t) ((offset >> 8) & 0xFF));
+    outb(0x3D5, (uint8_t) (offset & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (uint8_t) ((offset >> 8) & 0xFF));
 }
 
 
