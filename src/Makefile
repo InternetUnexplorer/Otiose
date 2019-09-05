@@ -1,11 +1,11 @@
-include $(shell pwd)/make.config
+include make.config
 
-.PHONY: qemu
+.PHONY: qemu kernel clean
 
-qemu: kernel/otiose.kernel
-	qemu-system-i386 -curses -kernel kernel/otiose.kernel
+qemu: kernel
+	qemu-system-i386 -kernel kernel/otiose.kernel
 
-kernel/otiose.kernel:
+kernel:
 	(cd kernel; make otiose.kernel)
 
 clean:
