@@ -18,7 +18,6 @@ void tty_setcursory(uint16_t);
 
 void tty_clear(void);
 void tty_clearline(void);
-void tty_newline(void);
 
 void tty_putchar(unsigned char);
 void tty_puts(char*);

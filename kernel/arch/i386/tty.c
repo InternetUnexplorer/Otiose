@@ -12,6 +12,9 @@ static inline void _updatecursor(void);
 static inline void _clear(void);
 static inline void _clearline(void);
 static inline void _newline(void);
+static inline void _tab(void);
+static inline void _backspace(void);
+static inline void _verticaltab(void);
 static inline void _setchar(unsigned char);
 static inline void _putchar(unsigned char);
 static inline void _puts(char*);
@@ -48,7 +51,6 @@ inline void tty_setcursory(uint16_t y) {
     cursor_y = y;
 }
 
-
 static inline uint16_t *_charaddr(uint16_t x, uint16_t y) {
     return vga_memory + y * tty_getwidth() + x;
 }
@@ -61,7 +63,6 @@ static inline void _updatecursor() {
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t) ((offset >> 8) & 0xFF));
 }
-
 
 static inline void _clear(void) {
     for (cursor_y = 0; cursor_y < tty_getheight(); cursor_y++)
@@ -95,9 +96,22 @@ static inline void _newline() {
     cursor_x = 0;
 }
 
-inline void tty_newline() {
+static inline void _tab() {
+    do {
+        _putchar(' ');
+    } while(cursor_x % 8);
+}
+
+static inline void _backspace() {
+    if (cursor_x)
+        cursor_x--;
+    _setchar(' ');
+}
+
+static inline void _verticaltab() {
+    uint16_t current_x = cursor_x;
     _newline();
-    _updatecursor();
+    cursor_x = current_x;
 }
 
 static inline void _setchar(unsigned char c) {
@@ -105,9 +119,19 @@ static inline void _setchar(unsigned char c) {
 }
 
 static inline void _putchar(unsigned char c) {
-    _setchar(c);
-    if (++cursor_x > tty_getwidth())
-        _newline();
+    switch (c) {
+    case '\a': /* TODO */      break;
+    case '\b': _backspace();   break;
+    case '\n': _newline();     break;
+    case '\r': cursor_x = 0;   break;
+    case '\t': _tab();         break;
+    case '\f': _verticaltab(); break;
+    case '\v': _verticaltab(); break;
+    default:
+        _setchar(c);
+        if (++cursor_x == tty_getwidth())
+            _newline();
+    }
 }
 
 inline void tty_putchar(unsigned char c) {
