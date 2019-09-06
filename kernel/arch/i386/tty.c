@@ -6,9 +6,11 @@ static uint16_t *vga_memory = (uint16_t*) 0xB8000;
 
 static uint8_t color = TTY_COLOR(LIGHTGRAY, BLACK);
 static uint16_t cursor_x, cursor_y;
+static bool cursor_visible = true;
 
 static inline uint16_t *_charaddr(uint16_t, uint16_t);
-static inline void _updatecursor(void);
+static inline void _updatecursorpos(void);
+static inline void _updatecursorvis(void);
 static inline void _clear(void);
 static inline void _clearline(void);
 static inline void _newline(void);
@@ -18,6 +20,12 @@ static inline void _verticaltab(void);
 static inline void _setchar(unsigned char);
 static inline void _putchar(unsigned char);
 static inline void _puts(char*);
+
+inline void tty_init() {
+    _clear();
+    _updatecursorpos();
+    _updatecursorvis();
+}
 
 inline uint16_t tty_getwidth() {
     return 80;
@@ -45,23 +53,47 @@ inline uint16_t tty_getcursory() {
 
 inline void tty_setcursorx(uint16_t x) {
     cursor_x = x;
+    _updatecursorpos();
 }
 
 inline void tty_setcursory(uint16_t y) {
     cursor_y = y;
+    _updatecursorpos();
+}
+
+inline bool tty_getcursorvis() {
+    return cursor_visible;
+}
+
+inline void tty_setcursorvis(bool v) {
+    cursor_visible = v;
+    _updatecursorvis();
 }
 
 static inline uint16_t *_charaddr(uint16_t x, uint16_t y) {
     return vga_memory + y * tty_getwidth() + x;
 }
 
-static inline void _updatecursor() {
+static inline void _updatecursorpos() {
     // Credit: https://wiki.osdev.org/Text_Mode_Cursor
     uint16_t offset = cursor_y * tty_getwidth() + cursor_x;
     outb(0x3D4, 0x0F);
     outb(0x3D5, (uint8_t) (offset & 0xFF));
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t) ((offset >> 8) & 0xFF));
+}
+
+static inline void _updatecursorvis() {
+    // Credit: https://wiki.osdev.org/Text_Mode_Cursor
+    if (cursor_visible) {
+        outb(0x3D4, 0x0A);
+        outb(0x3D5, (inb(0x3D5) & 0xC0) | 0xE);
+        outb(0x3D4, 0x0B);
+        outb(0x3D5, (inb(0x3D5) & 0xE0) | 0xF);
+    } else {
+        outb(0x3D4, 0x0A);
+        outb(0x3D5, 0x20);
+    }
 }
 
 static inline void _clear(void) {
@@ -72,7 +104,7 @@ static inline void _clear(void) {
 
 inline void tty_clear(void) {
     _clear();
-    _updatecursor();
+    _updatecursorpos();
 }
 
 static inline void _clearline() {
@@ -83,7 +115,7 @@ static inline void _clearline() {
 
 inline void tty_clearline() {
     _clearline();
-    _updatecursor();
+    _updatecursorpos();
 }
 
 static inline void _newline() {
@@ -136,7 +168,7 @@ static inline void _putchar(unsigned char c) {
 
 inline void tty_putchar(unsigned char c) {
     _putchar(c);
-    _updatecursor();
+    _updatecursorpos();
 }
 
 static inline void _puts(char* s) {
@@ -146,5 +178,5 @@ static inline void _puts(char* s) {
 
 inline void tty_puts(char* s) {
     _puts(s);
-    _updatecursor();
+    _updatecursorpos();
 }
